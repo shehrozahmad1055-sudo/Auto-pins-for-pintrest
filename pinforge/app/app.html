@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PinForge — Workspace</title>
+  <link rel="icon" href="../icons/icon32.png">
+  <link rel="stylesheet" href="../shared/base.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><img src="../icons/icon48.png" alt=""><span>Pin<b>Forge</b></span></div>
+    <div class="stats" id="stats" aria-live="polite"></div>
+    <div class="topbar-actions">
+      <a class="btn btn-ghost" href="../options/options.html" target="_blank">Settings</a>
+    </div>
+  </header>
+
+  <div id="keyBanner" class="banner hidden" role="alert">
+    <strong>Add your Gemini API key to start.</strong>
+    <span>It stays on this computer and is only sent to Google.</span>
+    <a class="btn btn-primary btn-sm" href="../options/options.html" target="_blank">Open Settings</a>
+  </div>
+
+  <main class="layout">
+    <!-- Left: batch controls -->
+    <aside class="sidebar">
+      <section class="panel side-block pinterest-block">
+        <h2>Pinterest</h2>
+        <label class="check auto-toggle">
+          <input type="checkbox" id="autoMode">
+          <span><strong>Full auto</strong><br><span class="small muted">Drop images → AI writes → pins publish</span></span>
+        </label>
+        <label class="field">When a pin is ready
+          <select id="publishMode">
+            <option value="auto">PinForge clicks Publish</option>
+            <option value="fill">Fill the form, I click Publish</option>
+          </select>
+        </label>
+        <div class="small muted" id="publishStatus" aria-live="polite"></div>
+        <button class="btn btn-sm btn-ghost" id="testPinterestBtn">Test Pinterest connection</button>
+      </section>
+
+      <section class="panel side-block">
+        <h2>Destination link</h2>
+        <div class="segmented" role="radiogroup" aria-label="Link mode">
+          <label><input type="radio" name="linkMode" value="same"> One link for all</label>
+          <label><input type="radio" name="linkMode" value="individual"> Individual links</label>
+        </div>
+
+        <div id="sameLinkBox">
+          <label class="field">Link for every pin
+            <input type="url" id="sameLink" placeholder="https://yoursite.com/page" autocomplete="off">
+            <span class="hint error-text hidden" id="sameLinkError"></span>
+          </label>
+        </div>
+
+        <div id="individualLinkBox" class="hidden">
+          <p class="muted small">Edit the link on each card, or paste one URL per line to fill cards in order.</p>
+          <textarea id="urlList" rows="4" placeholder="https://site.com/page-1&#10;https://site.com/page-2"></textarea>
+          <div class="row">
+            <button class="btn btn-sm" id="applyUrlList">Fill cards in order</button>
+            <button class="btn btn-sm btn-ghost" id="copySameToAll">Copy first link to empty cards</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel side-block">
+        <h2>Batch</h2>
+        <label class="field">Board for all <span class="hint">(optional — overrides AI suggestion)</span>
+          <input type="text" id="batchBoard" list="boardList" placeholder="Leave empty to use AI suggestion">
+        </label>
+        <button class="btn btn-sm" id="applyBoard">Apply board to all</button>
+
+        <button class="btn btn-sm btn-ghost" id="retryFailedBtn">Retry failed</button>
+      </section>
+
+      <section class="panel side-block">
+        <h2>Backup export</h2>
+        <label class="field">Columns
+          <select id="exportPreset">
+            <option value="full">All fields</option>
+            <option value="pinterest">Pinterest bulk-upload template</option>
+          </select>
+        </label>
+        <div class="row">
+          <button class="btn btn-sm" data-export="csv">CSV</button>
+          <button class="btn btn-sm" data-export="xlsx">Excel</button>
+          <button class="btn btn-sm" data-export="json">JSON</button>
+        </div>
+        <p class="small muted" id="exportNote">Only finished pins are exported.</p>
+      </section>
+
+      <section class="side-block side-danger">
+        <button class="btn btn-sm btn-ghost" id="clearDoneBtn">Remove finished</button>
+        <button class="btn btn-sm btn-danger" id="clearAllBtn">Remove all</button>
+      </section>
+    </aside>
+
+    <!-- Right: images -->
+    <section class="content">
+      <label class="dropzone" id="dropzone" tabindex="0">
+        <input type="file" id="fileInput" accept="image/*" multiple class="sr-only">
+        <div class="dz-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+        </div>
+        <div><strong>Drop images here</strong> or click to choose</div>
+        <div class="small muted">JPG, PNG, WEBP, GIF, AVIF · many at once · paste with Ctrl+V works too</div>
+      </label>
+
+      <div class="actionbar panel" role="group" aria-label="Bulk actions">
+        <button class="btn btn-primary btn-lg" id="pipelineBtn" title="Write every image and publish each pin as soon as it is ready">Generate + Publish all</button>
+        <button class="btn" id="processBtn" title="Write titles, descriptions and tags for every image">Generate all</button>
+        <button class="btn" id="publishBtn" title="Publish every written pin">Publish all ready</button>
+        <button class="btn btn-danger hidden" id="stopAllBtn">Stop</button>
+        <div class="progress hidden" id="progress">
+          <div class="progress-bar"><span id="progressFill"></span></div>
+          <div class="small muted" id="progressText"></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tabs" role="tablist" id="filterTabs">
+          <button role="tab" data-filter="all" aria-selected="true">All</button>
+          <button role="tab" data-filter="pending">To do</button>
+          <button role="tab" data-filter="done">Ready</button>
+          <button role="tab" data-filter="published">Published</button>
+          <button role="tab" data-filter="error">Errors</button>
+        </div>
+        <input type="text" id="search" placeholder="Search file name or title…" aria-label="Search">
+      </div>
+
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty">
+        <p><strong>No images yet.</strong></p>
+        <p class="muted">Upload images above. PinForge will write a Pinterest title, description, keywords, alt text and board for each one.</p>
+      </div>
+    </section>
+  </main>
+
+  <datalist id="boardList"></datalist>
+
+  <!-- Pin preview -->
+  <dialog id="previewDialog" class="preview-dialog" aria-labelledby="previewHeading">
+    <div class="preview-head">
+      <h2 id="previewHeading">Pin preview</h2>
+      <button class="btn btn-icon btn-ghost" id="previewClose" aria-label="Close">✕</button>
+    </div>
+    <div id="previewBody" class="preview-body"></div>
+  </dialog>
+
+  <!-- Pinterest connection test -->
+  <dialog id="diagDialog" class="preview-dialog diag-dialog" aria-labelledby="diagHeading">
+    <div class="preview-head">
+      <h2 id="diagHeading">Pinterest connection test</h2>
+      <button class="btn btn-icon btn-ghost" id="diagClose" aria-label="Close">✕</button>
+    </div>
+    <div id="diagBody" class="diag-body"></div>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

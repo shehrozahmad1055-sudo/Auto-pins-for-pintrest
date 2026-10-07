@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PinForge — Settings</title>
+  <link rel="icon" href="../icons/icon32.png">
+  <link rel="stylesheet" href="../shared/base.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header class="opt-header">
+    <div class="brand"><img src="../icons/icon48.png" alt=""><span>Pin<b>Forge</b> settings</span></div>
+    <a class="btn" href="../app/app.html">Open workspace</a>
+  </header>
+
+  <main class="opt-main">
+    <form id="form" novalidate>
+
+      <section class="panel sec">
+        <h2>Gemini API</h2>
+        <p class="muted small">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a>. The key is stored only in this browser and is sent only to Google's Gemini API.</p>
+
+        <label class="field">API key
+          <div class="key-row">
+            <input type="password" id="apiKey" autocomplete="off" spellcheck="false" placeholder="AIza…">
+            <button type="button" class="btn" id="toggleKey" aria-pressed="false">Show</button>
+            <button type="button" class="btn" id="testKey">Test</button>
+          </div>
+          <span class="hint" id="keyStatus"></span>
+        </label>
+
+        <fieldset class="radios">
+          <legend>Where to keep the key</legend>
+          <label class="check"><input type="radio" name="keyStorage" value="local"> Remember on this computer</label>
+          <label class="check"><input type="radio" name="keyStorage" value="session"> Forget when Chrome closes (safer on shared computers)</label>
+        </fieldset>
+
+        <label class="field">Model
+          <div class="key-row">
+            <select id="model"></select>
+            <button type="button" class="btn" id="loadModels">Load models</button>
+          </div>
+          <span class="hint">"Flash" models are fast and cheap — best for bulk. Click "Load models" to see what your key can use.</span>
+        </label>
+      </section>
+
+      <section class="panel sec">
+        <h2>Pinterest publishing</h2>
+        <p class="muted small">PinForge publishes through Pinterest's normal "Create Pin" page using your own login in this Chrome — no password is stored. Stay logged in to pinterest.com.</p>
+        <label class="check"><input type="checkbox" id="autoMode"> <span><strong>Full auto</strong> — as soon as images are dropped, write the text and publish</span></label>
+        <fieldset class="radios">
+          <legend>When a pin is ready</legend>
+          <label class="check"><input type="radio" name="publishMode" value="auto"> PinForge clicks Publish</label>
+          <label class="check"><input type="radio" name="publishMode" value="fill"> Fill the form, I click Publish (good for testing)</label>
+        </fieldset>
+        <label class="check"><input type="checkbox" id="reliableMode"> <span><strong>Reliable mode</strong> — real clicks, typing and image upload through Chrome (recommended). Chrome shows a "started debugging this browser" bar while publishing; that's normal, don't press Cancel.</span></label>
+        <label class="field">Fallback board <span class="hint">used when a pin has no board</span>
+          <input type="text" id="fallbackBoard" placeholder="Exact board name on Pinterest">
+        </label>
+        <div class="grid2">
+          <label class="check"><input type="checkbox" id="addTags"> Add tagged topics from keywords</label>
+          <label class="field">Topics per pin
+            <input type="number" id="tagCount" min="1" max="10">
+          </label>
+        </div>
+        <div class="grid3">
+          <label class="field">Wait between pins (min sec)
+            <input type="number" id="delayMinSec" min="5" max="3600">
+          </label>
+          <label class="field">Wait between pins (max sec)
+            <input type="number" id="delayMaxSec" min="5" max="3600">
+          </label>
+          <label class="field">Max pins per day
+            <input type="number" id="dailyLimit" min="0" max="500">
+          </label>
+        </div>
+        <p class="hint small muted">Posting too fast or too much can get a Pinterest account flagged. Defaults (20–40 s, 25/day) keep a safe pace. 5 s is the minimum. 0 = no daily limit.</p>
+        <details>
+          <summary class="small muted">Advanced: page address &amp; selectors</summary>
+          <label class="field">Create Pin page
+            <input type="url" id="pinterestCreateUrl" placeholder="https://www.pinterest.com/pin-creation-tool/">
+          </label>
+          <label class="field">Selector overrides (JSON) <span class="hint">only if Pinterest changes its page. Keys: uploadInput, title, description, link, altText, boardButton, boardSearch, boardOption, tagInput, tagOption, publish</span>
+            <textarea id="selectorOverrides" rows="4" spellcheck="false" placeholder='{ "title": ["#new-title-id"] }'></textarea>
+            <span class="hint error-text" id="selectorOverridesErr"></span>
+          </label>
+        </details>
+      </section>
+
+      <section class="panel sec">
+        <h2>Writing style</h2>
+        <div class="grid2">
+          <label class="field">Language
+            <input type="text" id="language" placeholder="English">
+          </label>
+          <label class="field">Tone
+            <input type="text" id="tone" placeholder="friendly and helpful">
+          </label>
+        </div>
+        <label class="field">Your niche / account context <span class="hint">helps the AI pick better keywords</span>
+          <textarea id="nicheContext" rows="3" placeholder="e.g. I sell seamless patterns and digital backgrounds for designers on Adobe Stock and Etsy."></textarea>
+        </label>
+        <label class="field">Your boards <span class="hint">one per line — the AI will pick from these</span>
+          <textarea id="boards" rows="4" placeholder="Seamless Patterns&#10;Abstract Backgrounds&#10;Home Decor Ideas"></textarea>
+        </label>
+        <div class="grid3">
+          <label class="field">Keywords per pin
+            <input type="number" id="keywordCount" min="3" max="30">
+          </label>
+          <label class="field">Max title length
+            <input type="number" id="titleMax" min="30" max="100">
+          </label>
+          <label class="field">Max description length
+            <input type="number" id="descriptionMax" min="100" max="500">
+          </label>
+        </div>
+        <label class="check"><input type="checkbox" id="includeHashtags"> Add a few hashtags at the end of descriptions</label>
+      </section>
+
+      <section class="panel sec">
+        <h2>Links &amp; export</h2>
+        <fieldset class="radios">
+          <legend>Destination link</legend>
+          <label class="check"><input type="radio" name="linkMode" value="same"> One link for all pins</label>
+          <label class="check"><input type="radio" name="linkMode" value="individual"> A different link per pin</label>
+        </fieldset>
+        <label class="field">Default link
+          <input type="url" id="defaultLink" placeholder="https://yoursite.com">
+          <span class="hint error-text" id="defaultLinkErr"></span>
+        </label>
+        <label class="field">Media base URL <span class="hint">optional — where your images are hosted online. Used to fill "Media URL" in the Pinterest CSV, e.g. https://yoursite.com/pins/ + file name.</span>
+          <input type="url" id="mediaBaseUrl" placeholder="https://yoursite.com/pins/">
+          <span class="hint error-text" id="mediaBaseUrlErr"></span>
+        </label>
+      </section>
+
+      <section class="panel sec">
+        <h2>Speed &amp; limits</h2>
+        <div class="grid2">
+          <label class="field">Parallel requests
+            <input type="number" id="concurrency" min="1" max="6">
+            <span class="hint">1–2 for free keys, up to 6 for paid.</span>
+          </label>
+          <label class="field">Requests per minute
+            <input type="number" id="requestsPerMinute" min="0" max="2000">
+            <span class="hint">Free tier is low (around 10). 0 = no limit.</span>
+          </label>
+        </div>
+      </section>
+
+      <details class="panel sec">
+        <summary><h2>Advanced: use your own backend (optional)</h2></summary>
+        <p class="muted small">If you run the PHP proxy from the <code>backend/</code> folder, the API key lives on your server instead of in the browser. Leave empty to call Gemini directly.</p>
+        <label class="field">Proxy URL
+          <input type="url" id="proxyUrl" placeholder="https://yourserver.com/pinforge/proxy.php">
+          <span class="hint error-text" id="proxyUrlErr"></span>
+        </label>
+        <label class="field">Proxy access token
+          <input type="password" id="proxyToken" autocomplete="off">
+        </label>
+      </details>
+
+      <div class="save-bar">
+        <span class="small muted" id="saveStatus"></span>
+        <button type="submit" class="btn btn-primary">Save settings</button>
+      </div>
+    </form>
+
+    <section class="panel sec">
+      <h2>Your data</h2>
+      <p class="small muted" id="usage">Calculating storage…</p>
+      <div class="row">
+        <button class="btn btn-danger" id="forgetKey">Remove API key</button>
+        <button class="btn btn-danger" id="wipeAll">Delete all images &amp; results</button>
+      </div>
+    </section>
+
+    <p class="small muted footer">PinForge v<span id="version"></span> · Images are sent to Google Gemini only when you click Generate. Nothing is sent to any other server unless you set a proxy URL.</p>
+  </main>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

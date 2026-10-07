@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>PinForge</title>
+  <link rel="stylesheet" href="../shared/base.css">
+  <style>
+    body { width: 300px; padding: 16px; display: grid; gap: 14px; }
+    .stat { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+    .stat b { font-variant-numeric: tabular-nums; }
+    .btn { width: 100%; }
+    .warn { background: var(--accent-soft); border: 1px solid var(--accent); padding: 8px 10px; border-radius: 8px; font-size: 12.5px; }
+  </style>
+</head>
+<body>
+  <div class="brand"><img src="../icons/icon48.png" alt=""><span>Pin<b>Forge</b></span></div>
+  <div id="noKey" class="warn hidden">No Gemini API key yet — add it in Settings.</div>
+  <div>
+    <div class="stat"><span>Images</span><b id="sTotal">0</b></div>
+    <div class="stat"><span>Ready pins</span><b id="sDone">0</b></div>
+    <div class="stat"><span>Errors</span><b id="sErr">0</b></div>
+  </div>
+  <button class="btn btn-primary" id="openApp">Open workspace</button>
+  <button class="btn" id="openOptions">Settings</button>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

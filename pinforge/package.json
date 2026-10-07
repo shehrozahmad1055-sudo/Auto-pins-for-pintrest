@@ -1,0 +1,15 @@
+{
+  "name": "pinforge",
+  "version": "1.4.1",
+  "private": true,
+  "type": "module",
+  "description": "PinForge \u2014 AI Pinterest pin metadata generator (Chrome extension). package.json is only used to run tests.",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs && python3 tests/check_xlsx.py",
+    "test:ui": "node tests/ui-workspace.smoke.mjs && node tests/ui-options.smoke.mjs && node tests/pinterest-content.smoke.mjs && node tests/pinterest-real-layout.smoke.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "fake-indexeddb": "^6.2.5"
+  }
+}
